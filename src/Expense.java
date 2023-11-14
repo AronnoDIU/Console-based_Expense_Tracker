@@ -1,5 +1,5 @@
 import java.io.Serial; // For serializing and deserializing objects for serialization and deserialization.
-import java.io.Serializable;
+import java.io.Serializable; // For serializing and deserializing objects.
 import java.util.Date; // For handling date and time in the application.
 
 class Expense implements Serializable {
