@@ -38,6 +38,7 @@ class Expense implements Serializable {
      with the timestamp, category, amount, and description*/
     @Override
     public String toString() {
-        return String.format("%tF %tT - %s - %.2f - %s", timestamp, timestamp, category, amount, description);
+        return String.format("%tF %tT - %s - $%.2f - %s",
+                timestamp, timestamp, category, amount, description);
     }
 }
