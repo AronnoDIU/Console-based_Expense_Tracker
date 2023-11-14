@@ -1,13 +1,13 @@
 import java.io.*; // For handling file I/O
-import java.text.SimpleDateFormat;
+import java.text.SimpleDateFormat; // For formatting date and time
 import java.util.*; // For handling user input and data storage and manipulation.
 
 public class ExpenseTracker {
-    private static final String FILE_NAME = "expenses.txt";
+    private static final String FILE_NAME = "expenses.txt"; // New constant for expense file
     private static final String BUDGETS_FILE_NAME = "budgets.ser";  // New constant for budget file
     private static final Scanner userInput = new Scanner(System.in);
-    private static List<Expense> expenses = new ArrayList<>();
-    private static Map<String, Double> categoryBudgets = new HashMap<>();
+    private static List<Expense> expenses = new ArrayList<>(); // List of expenses to store
+    private static Map<String, Double> categoryBudgets = new HashMap<>(); // Map of category to budget
     private static final double CONVERSION_RATE = 110.70;  // Conversion rate (USD to BDT)
 
     public static void main(String[] args) {
@@ -76,7 +76,24 @@ public class ExpenseTracker {
     // Record an expense and add it to the list of expenses
     private static void recordExpense() {
         System.out.print("Enter the expense amount: ");
-        double amount = Double.parseDouble(userInput.nextLine());
+
+        // Read the input as a string
+        String amountInput = userInput.nextLine();
+
+        // Validate if the input is not empty
+        if (amountInput.isEmpty()) {
+            System.out.println("Amount cannot be empty. Please enter a valid numeric value.");
+            return; // Return to the main menu
+        }
+
+        // Validate if the input is a valid double
+        double amount;
+        try {
+            amount = Double.parseDouble(amountInput);
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please enter a valid numeric value for the amount.");
+            return; // Return to the main menu
+        }
 
         System.out.print("Enter the expense category: ");
         String category = userInput.nextLine();
@@ -125,6 +142,7 @@ public class ExpenseTracker {
         System.out.print("Enter the expense category to set a budget: ");
         String category = userInput.nextLine();
 
+        // Check if the category exists in the list of expenses and get the current budget
         if (categoryBudgets.containsKey(category)) {
             System.out.printf("Current budget for category '%s': %.2f\n",
                     category, categoryBudgets.get(category));
@@ -132,70 +150,90 @@ public class ExpenseTracker {
 
         double newBudget = getBudgetInput();
 
+        // Set the new budget for the category in the map.
         categoryBudgets.put(category, newBudget);
 
         System.out.println("Budget set successfully for the category: " + category);
     }
 
     private static double getBudgetInput() {
-        double budget = 0;
-        boolean validInput = false;
+        double budget = 0; // The Initial budget amount is set to 0
+        boolean validInput = false; // Flag to check if the input is valid
 
+        // Loop until the input is valid
         while (!validInput) {
             try {
                 System.out.print("Enter the new budget amount for the category: ");
                 budget = Double.parseDouble(userInput.nextLine());
 
+                // Check if the budget amount is non-negative and non-zero.
                 if (budget >= 0) {
-                    validInput = true;
+                    validInput = true; // Input is valid, exit the loop
                 } else {
                     System.out.println("Invalid budget amount. Please enter a non-negative value.");
                 }
-            } catch (NumberFormatException e) {
+            } catch (NumberFormatException e) { // Input is not a valid number
                 System.out.println("Invalid input. Please enter a valid number.");
             }
         }
 
-        return budget;
+        return budget; // Return the valid budget amount for the category
     }
 
     // View all budgets
     private static void viewAllBudgets() {
+
+        // Check if there are any budgets set yet.
         if (categoryBudgets.isEmpty()) {
             System.out.println("No budgets set yet.");
         } else {
             System.out.println("\n===== Expense Budgets =====");
+
+            // Print the budget for each category in descending order based on the map.
             categoryBudgets.forEach((category, budget) ->
                     System.out.printf("Category: %s - Budget: %.2f\n", category, budget));
         }
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked") // Load budgets from file and add them to the list of budgets
     private static void loadBudgetsFromFile() {
+
+        // Try to load budgets from file and add them to the list of budgets if they exist.
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("budgets.ser"))) {
-            categoryBudgets = (Map<String, Double>) ois.readObject();
+            categoryBudgets = (Map<String, Double>) ois.readObject(); // Read the serialized object
             System.out.println("Budgets loaded successfully.");
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException e) { // No existing budgets found
             System.out.println("No existing budgets found. Starting with an empty budget list.");
         }
     }
 
+    // Save budgets to file
     private static void saveBudgetsToFile() {
+
+        // Try to save budgets to file and print a success message if successful.
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(BUDGETS_FILE_NAME))) {
+
+            // Write the serialized object to the file.
             oos.writeObject(categoryBudgets);
             System.out.println("Budgets saved successfully.");
-        } catch (IOException e) {
+        } catch (IOException e) { // Error saving budgets to file
             System.out.println("Error saving budgets to file.");
         }
     }
 
+    // View expense history
     private static void viewExpenseHistory() {
+
+        // Check if there are any expenses recorded.
         if (expenses.isEmpty()) {
             System.out.println("No expenses recorded.");
-        } else {
+        } else { // Print the expense history
             System.out.println("\n===== Expense History =====");
+
+            // Create a SimpleDateFormat object to format the timestamp as "yyyy-MM-dd HH:mm:ss"
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
+            // Print the expense history for each expense in the list of expenses
             for (Expense expense : expenses) {
                 System.out.printf("Timestamp: %s - Category: %s - Amount: %.2f - Description: %s\n",
                         dateFormat.format(expense.getTimestamp()), expense.getCategory(),
@@ -204,25 +242,33 @@ public class ExpenseTracker {
         }
     }
 
+    // Convert currency
     private static void convertCurrency() {
+
+        // Check if there are any expenses recorded. If not, return.
         if (expenses.isEmpty()) {
             System.out.println("No expenses recorded. Cannot perform currency conversion.");
             return;
         }
 
-        System.out.print("Enter the target currency code (e.g., USD, EUR): ");
+        System.out.print("Enter the target currency code (e.g., USD, BDT): ");
         String targetCurrencyCode = userInput.nextLine().toUpperCase();
 
         try {
+            // Check if the target currency code is valid.
             Currency.getInstance(targetCurrencyCode);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) { // If not, throw an exception.
             System.out.println("Invalid currency code. Please enter a valid currency code.");
             return;
         }
 
         System.out.println("\n===== Currency Conversion =====");
 
+        // Convert the expenses to the target currency and print the results
+        // for each expense in the list of expenses.
         for (Expense expense : expenses) {
+
+            // Convert the expense amount to the target currency and print the results
             double convertedAmount = expense.getAmount() * CONVERSION_RATE;
             String convertedCurrency = Currency.getInstance(targetCurrencyCode).getSymbol();
 
@@ -231,21 +277,26 @@ public class ExpenseTracker {
         }
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked") // Load expenses from file and add them to the list of expenses
     private static void loadExpensesFromFile() {
+
+        // Try to load expenses from file and add them to the list of expenses if they exist.
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(FILE_NAME))) {
-            expenses = (List<Expense>) ois.readObject();
+            expenses = (List<Expense>) ois.readObject(); // Read the serialized object
             System.out.println("Expenses loaded successfully.");
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException e) { // No existing expenses found
             System.out.println("No existing expenses found. Starting with an empty expense list.");
         }
     }
 
+    // Save expenses to file
     private static void saveExpensesToFile() {
+
+        // Try to save expenses to file and print a success message if successful.
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_NAME))) {
-            oos.writeObject(expenses);
+            oos.writeObject(expenses); // Write the serialized object to the file.
             System.out.println("Expenses saved successfully.");
-        } catch (IOException e) {
+        } catch (IOException e) { // Error saving expenses to file
             System.out.println("Error saving expenses to file.");
         }
     }

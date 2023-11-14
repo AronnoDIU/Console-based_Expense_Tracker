@@ -19,6 +19,7 @@ provides a simple and text-based interface for recording, tracking, and analyzin
 - **Expense Recording:** Record daily expenses with details such as amount, category, and description.
 - **Expense Analysis:** View a summary of expenses, including total spending and spending per category.
 - **Budgeting:** Set monthly budgets for different expense categories and receive alerts for exceeding limits.
+- **Budget Tracking:** View and update monthly budget progress.
 - **Expense History:** Browse and search through historical expenses, filtering by categories, date ranges, or keywords.
 - **Currency Conversion:** Support for multiple currencies with an option to convert and display expenses in a
   user-specified currency.
