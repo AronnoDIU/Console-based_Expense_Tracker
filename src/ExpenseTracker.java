@@ -6,7 +6,7 @@ import java.util.*; // For handling user input and data storage and manipulation
 public class ExpenseTracker {
     // Define file names for expenses and budgets files
     private static final String EXPENSES_FILE_NAME = "expenses.txt";
-    private static final String BUDGETS_FILE_NAME = "budgets.txt";
+    private static final String BUDGETS_FILE_NAME = "budgets.txt"; // File to store budgets
     private static final double CONVERSION_RATE = 110.70; // USD to BDT conversion rate
 
     private static final Scanner userInput = new Scanner(System.in);
